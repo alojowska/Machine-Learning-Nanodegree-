@@ -11802,7 +11802,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># Import libraries necessary for this project</span>
@@ -11917,7 +11917,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># TODO: Total number of records</span>
@@ -11930,7 +11930,7 @@ div#notebook {
 <span class="n">n_at_most_50k</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;income&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;&lt;=50K&#39;</span><span class="p">)</span>
 
 <span class="c1"># TODO: Percentage of individuals whose income is more than $50,000</span>
-<span class="n">greater_percent</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="nb">sum</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;income&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;&gt;50K&#39;</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">greater_percent</span> <span class="o">=</span> <span class="mi">100</span><span class="o">*</span><span class="nb">sum</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;income&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;&gt;50K&#39;</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span><span class="p">)</span>
 
 <span class="c1"># Print the results</span>
 <span class="k">print</span> <span class="s2">&quot;Total number of records: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_records</span><span class="p">)</span>
@@ -11952,7 +11952,7 @@ div#notebook {
 <pre>Total number of records: 45222
 Individuals making more than $50,000: 11208
 Individuals making at most $50,000: 34014
-Percentage of individuals making more than $50,000: 24.00%
+Percentage of individuals making more than $50,000: 24.78%
 </pre>
 </div>
 </div>
@@ -14114,7 +14114,7 @@ Look at the graph at the bottom left from the cell above(the visualization creat
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Answer: </strong>
-Logistic regression models seem to have the highest F score on the test set. However, the random forrest classifier have only slighly lower F score. Taking into account that the F-score has been computed based on just one test sample and that the two models has been used with default parameters, we decide to consider both models for further analysis that should include grid search. Both models seem to be trained and predict within reasonable amount of time and are suitable for the data.</p>
+Logistic regression models seem to have the highest F score on the test set. However, the random forrest classifier have only slighly lower F score. When we look at the training set, the random forest fits the training set better. Taking into acount all these and the fact that random forest deals better with categorical variables and with dependencies between them, we select random forest model but we will also give later an opportunity to logistic regression to double check its performance in grid search. Moreover, both models seem to be trained and predict within reasonable amount of time and are suitable for the data.</p>
 
 </div>
 </div>
@@ -14139,8 +14139,23 @@ Logistic regression models seem to have the highest F score on the test set. How
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Answer: </strong></p>
-<p>The model is trained based on a part of the data set, so-called training set. The model learns which characteristics of people in the data are correlated with higher income (above 50k), and which characteristics are correlated with lower income. We verify if the model "learned" the data well by testing it on the new set of persons that the model has not seen. The model then provides prediction for these new persons and we check how often it was right.</p>
-<p>We assume that high income persons are donors and low income persons are not donors. Predicting wrongly that a person is not a donor is not as bad as wrongly predicting that a person is a donor while he isn't (has a low income). Therefore in measuring accuracy of the model we will be focusing on maximizing correctly predicted donors and minimizing the number of persons that are wrongly predicted to be donors.</p>
+<p>Random forest model is a set of decision trees built on randomly selected features. Decision tree builds classification in the form of a tree structure. It breaks down a dataset into smaller and smaller subsets while at the same time an associated decision tree is incrementally developed. The final result is a tree with decision nodes and leaf node [1].
+Decision tree is a weak classifier and proned to overfitting. However random forest as an ensemble of a number of decision trees takes a vote from each decision tree and creates prediction based on a combination of votes. In this way it becomes a strong classifier and has a way lower risk of overfitting than an individual decision tree.</p>
+<p>More specifically, the training process is made of the following steps [2]:</p>
+<ol>
+<li>Randomly selecting subset of features.</li>
+<li>Creating a decision tree for this subset by using the best splits till the tree reaches the maximum depth.</li>
+<li>Repeating 1 and 2 till the specified number of trees are created.</li>
+</ol>
+<p>The prediction is made by the following process:</p>
+<ol>
+<li>Taking the test features and use the rules of each randomly created decision tree to predict the outcome and storing the predicted outcome (target)</li>
+<li>Calculating the votes for each predicted target</li>
+<li>Considering the high voted predicted target as the final prediction from the random forest algorithm</li>
+</ol>
+<p>Sources
+[1] <a href="http://www.saedsayad.com/decision_tree.htm">http://www.saedsayad.com/decision_tree.htm</a>
+[2] <a href="https://medium.com/@Synced/how-random-forest-algorithm-works-in-machine-learning-3c0fe15b6674">https://medium.com/@Synced/how-random-forest-algorithm-works-in-machine-learning-3c0fe15b6674</a></p>
 
 </div>
 </div>
