@@ -24,7 +24,7 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Set any additional class parameters as needed
-
+        self.ntrain = 0.0 # count the trail number in order to use in decaying epsilon value
 
     def reset(self, destination=None, testing=False):
         """ The reset function is called at the beginning of each trial.
@@ -33,6 +33,9 @@ class LearningAgent(Agent):
 
         # Select the destination as the new location to route to
         self.planner.route_to(destination)
+        
+        #self.ntrain = self.ntrain + 1
+        #ntrain = ntrain + 1
         
         ########### 
         ## TO DO ##
@@ -44,9 +47,10 @@ class LearningAgent(Agent):
             self.epsilon = 0
             self.alpha = 0
         else:
-            self.epsilon = self.epsilon - 0.05
-            
-        
+            self.ntrain = self.ntrain + 1.0
+            #self.epsilon = self.epsilon - 0.05
+            self.epsilon = self.ntrain**-2
+
 
         return None
 
@@ -83,16 +87,14 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Calculate the maximum Q-value of all actions for a given state
-        
-        #get a list of all tuples that have state in it
-        list_tuples = [item for item in self.Q if (item[0] == state[0]) & (item[1] == state[1])]
-        
+               
         max_i=0.0
+
         
-        #compute maximum Q
-        for i in list_tuples:
-            if max_i < self.Q[i]:
-                max_i = self.Q[i]
+        for i in self.Q[state]:
+            if max_i < self.Q[state][i]:
+                max_i = self.Q[state][i]
+                        
             
         
         maxQ = max_i
@@ -110,19 +112,12 @@ class LearningAgent(Agent):
         # If it is not, create a new dictionary for that state
         #   Then, for each action available, set the initial Q-value to 0.0
         
-        q_table = self.Q
-        
-        if self.learning == True:
-            #check if the state is in the tuple state+action    
-            isthere = [item for item in q_table if (item[0] == state[0]) & (item[1] == state[1])]
-
-            #if the state is not in any of the Q tuples then add it to Q table and give initial Q values
-            if isthere == []:
-                for item in self.valid_actions:
-                    dict2 = {state + (item,):0.0}
-                    q_table.update(dict2)
-            self.Q = q_table
-        
+      
+        if state not in self.Q:
+            self.Q[state] = dict()
+            for item in self.valid_actions:
+                self.Q[state][item] = 0.0
+            
         return 
 
 
@@ -153,15 +148,14 @@ class LearningAgent(Agent):
                 action = random.choice(self.valid_actions)
                 
             else:    
-                list_tuples = [item for item in self.Q if (item[0] == state[0]) & (item[1] == state[1])]
+                
                 max_i=0.0
                 best_action = random.choice(self.valid_actions)
-
-                #compute maximum Q and corresponding action
-                for i in list_tuples:
-                    if max_i < self.Q[i]:
-                        max_i = self.Q[i]
-                        best_action = i[2]
+                
+                for i in self.Q[state]:
+                    if max_i < self.Q[state][i]:
+                        max_i = self.Q[state][i]
+                        best_action = i
                 action = best_action
         
         return action
@@ -178,10 +172,9 @@ class LearningAgent(Agent):
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
         if self.learning == True:
-            state_action = state + (action,)
-            past_q = self.Q[state_action]
-            new_q = (1 - self.alpha) + self.alpha * reward
-            self.Q[state_action] = new_q
+            past_q = self.Q[state][action]
+            self.Q[state][action] = (1 - self.alpha)*past_q + self.alpha * reward
+            
         
         return 
 
@@ -220,7 +213,7 @@ def run():
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
     #agent = env.create_agent(LearningAgent)
-    agent = env.create_agent(LearningAgent, learning=True)
+    agent = env.create_agent(LearningAgent, learning=True, alpha = 0.25)
     
     ##############
     # Follow the driving agent
@@ -236,7 +229,7 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, update_delay=0.01, log_metrics=True, display=True)
+    sim = Simulator(env, update_delay=0.01, log_metrics=True, display=True, optimized = True)
     #sim = Simulator(env)
     
     ##############
@@ -244,7 +237,7 @@ def run():
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05 
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=10)
+    sim.run(n_test=10, tolerance = 0.001)
     #sim.run()
 
 if __name__ == '__main__':
