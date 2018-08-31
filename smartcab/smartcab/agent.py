@@ -49,7 +49,9 @@ class LearningAgent(Agent):
         else:
             self.ntrain = self.ntrain + 1.0
             #self.epsilon = self.epsilon - 0.05
-            self.epsilon = self.ntrain**-2
+            #self.epsilon = self.ntrain**-2
+            a = 0.9
+            self.epsilon = a**self.ntrain
 
 
         return None
@@ -74,7 +76,7 @@ class LearningAgent(Agent):
         # With the hand-engineered features, this learning process gets entirely negated.
         
         # Set 'state' as a tuple of relevant data for the agent        
-        state = (waypoint, inputs['light'])
+        state = (waypoint, inputs['light'], inputs['oncoming'])
 
         return state
 
@@ -149,14 +151,16 @@ class LearningAgent(Agent):
                 
             else:    
                 
-                max_i=0.0
-                best_action = random.choice(self.valid_actions)
-                
+                max_i = 0.0
+
+                #find the maximum Q over all action for the given state
                 for i in self.Q[state]:
                     if max_i < self.Q[state][i]:
                         max_i = self.Q[state][i]
-                        best_action = i
-                action = best_action
+                        
+                #create a list of actions that have the same maximum value            
+                best_action_list = [i for i in self.Q[state] if self.Q[state][i] == max_i]
+                action = random.choice(best_action_list)
         
         return action
 
