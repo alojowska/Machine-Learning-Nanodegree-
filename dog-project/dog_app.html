@@ -12436,7 +12436,7 @@ Percentage of dog files predicted to be dog files: 100.0%
 <p>We have imported some Python modules to get you started, but feel free to import as many modules as you need.  If you end up getting stuck, here's a hint that specifies a model that trains relatively fast on CPU and attains &gt;1% test accuracy in 5 epochs:</p>
 <p><img src="images/sample_cnn.png" alt="Sample CNN"></p>
 <p><strong>Question 4:</strong> Outline the steps you took to get to your final CNN architecture and your reasoning at each step.  If you chose to use the hinted architecture above, describe why you think that CNN architecture should work well for the image classification task.</p>
-<p><strong>Answer:</strong></p>
+<p><strong>Answer:</strong> The main approach for creating this architecture was reducing the spacial dimentions and increasing depth. For this I used 3 convolutional layers that have increasing number of filters (icreasing depth) and each one is followed by a max polling layer (reducing spacial dimension). I could have used more convolutions but this would increase the number of parameters significantly and might lead to overfitting. The choice of number of filters has been based on other architectures that have been used for classifying similar types of images. After 3 layers of convolutions and max polling I flatten he result and use a dense layer to connect this to the final output labels (133 dog breeds) using softmax activation. I also used dropout in two places (before flattening and after dense layer in order to avoid overfitting).</p>
 
 </div>
 </div>
@@ -13063,7 +13063,7 @@ test_{network} = bottleneck_features['test']</code></pre>
 
 </code></pre>
 <p><strong>Question 5:</strong> Outline the steps you took to get to your final CNN architecture and your reasoning at each step.  Describe why you think the architecture is suitable for the current problem.</p>
-<p><strong>Answer:</strong></p>
+<p><strong>Answer:</strong> I use a pretrained Resnet50 model that was trained on 1.28 million images from ImageNet. The Residual deep learning network has been proven to have excellent classification accuracy (3.57% error on a test set) and although it has more layers than VGG it has a less complex architecture. I chose Resnet50 since it has been also proven that is better than VGG so I expected at least 39% accuracy on the test set. Dog breeds images are a part of the ImageNet set so the Resnet50 architecture together with its pretrained parameters on ImageNet could be use via transfer learning to our dog breeds set. It is done by using the Resnet50 except the last layer with 1000 labels, applying global average polling and linking it to our 133 labels via dense layer.</p>
 
 </div>
 </div>
@@ -13404,7 +13404,7 @@ Epoch 20/20
         
     <span class="k">if</span> <span class="p">(</span><span class="n">face_detector</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dog_detector</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">):</span>
         <span class="n">message2</span> <span class="o">=</span> <span class="s1">&#39;a dog and a human&#39;</span>
-
+        
     <span class="k">return</span> <span class="n">message1</span><span class="o">+</span><span class="n">message2</span>
                 
             
@@ -13425,7 +13425,13 @@ Epoch 20/20
 <h2 id="Step-7:-Test-Your-Algorithm">Step 7: Test Your Algorithm<a class="anchor-link" href="#Step-7:-Test-Your-Algorithm">&#182;</a></h2><p>In this section, you will take your new algorithm for a spin!  What kind of dog does the algorithm think that <strong>you</strong> look like?  If you have a dog, does it predict your dog's breed accurately?  If you have a cat, does it mistakenly think that your cat is a dog?</p>
 <h3 id="(IMPLEMENTATION)-Test-Your-Algorithm-on-Sample-Images!">(IMPLEMENTATION) Test Your Algorithm on Sample Images!<a class="anchor-link" href="#(IMPLEMENTATION)-Test-Your-Algorithm-on-Sample-Images!">&#182;</a></h3><p>Test your algorithm at least six images on your computer.  Feel free to use any images you like.  Use at least two human and two dog images.</p>
 <p><strong>Question 6:</strong> Is the output better than you expected :) ?  Or worse :( ?  Provide at least three possible points of improvement for your algorithm.</p>
-<p><strong>Answer:</strong> The output is better than expected. Most of predictions were correct based on the picture I provided. The only picture missclassified was a photo with an angry dog. The prediction could be improved by including in the training set pictures of dogs with different face expressions.</p>
+<p><strong>Answer:</strong> The output is better than expected. Most of predictions were correct based on the picture I provided. The only picture missclassified was a photo with an angry dog.</p>
+<p>Points of improvement:</p>
+<ul>
+<li>increasing number of epochs</li>
+<li>data augmentation and also including in the training set pictures of dogs with different face expressions (other than usual so angry etc.).</li>
+<li>increasing number of convolutional layers</li>
+</ul>
 
 </div>
 </div>
@@ -13462,6 +13468,21 @@ Epoch 20/20
 
 </div>
 
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">image_paths</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;images/myDog.jpg&quot;</span><span class="p">,</span><span class="s2">&quot;images/myOtherDog.jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;images/myBaby.jpg&quot;</span><span class="p">,</span><span class="s2">&quot;images/myself.jpg&quot;</span><span class="p">,</span><span class="s2">&quot;images/1.jpg&quot;</span><span class="p">,</span><span class="s2">&quot;images/MS.png&quot;</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">6</span><span class="p">):</span>
+    <span class="n">dog_breed_detector_from_scratch</span><span class="p">(</span><span class="n">examples</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</pre></div>
+
+</div>
 </div>
 </div>
 
